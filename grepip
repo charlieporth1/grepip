@@ -35,6 +35,8 @@ OPTIONS:
                      For IPv6: ::/0, ::1/128, fe80:/10, fc00:/7 
  -4                 Enable IPv4 mode (the default)
  -6                 Enable IPv6 mode
+ -46
+ -o only
  --help -h          Show help and exit
  --version -v       Show version and exit
 EOF
@@ -50,8 +52,9 @@ for i in "$@"; do
         -x | --no-local ) shift ; optNoLocal=1;;
         -4 ) shift ; IPVersion=4;;
         -6 ) shift ; IPVersion=6;;
-        -46 ) shift ; die "Not implemented. Choose between -4 and -6";;
-        -* ) die "Unknown option: $1";;
+        -46 ) shift ; IPVersion=46;;
+#        -* ) die "Unknown option: $1";;
+        -* ) other_grep_options="$other_grep_options $1";;
         *) ;;
     esac
 done
@@ -79,6 +82,7 @@ fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|\
 case $IPVersion in
     4) filter="grep -oP -e '$regexIPv4'" ;;
     6) filter="grep -oE -e '$regexIPv6' | grep -v -e '::/[^0-9]' -e '^::$'" ;;
+    46) filter="grep -oP -e '($regexIPv4|$regexIPv6)'" ;;
     *) die "Unknown IPVersion: $IPVersion";;
 esac
 
